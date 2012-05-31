@@ -57,7 +57,6 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
             groups[h] = hashtags
 
         for h in hashtags:
-            print h
             BigGraphSocketHandler.waiters.setdefault(h, set()).add(self)
 
     def on_close(self):
@@ -190,7 +189,7 @@ class TweetDaemon(object):
         for tweet in stream.tweets(cls.WORDS):
             if cls.stop_tweet_daemon: break
             SmallGraphSocketHandler.handle(*tweet)
-            #BigGraphSocketHandler.handle(*tweet)
+            BigGraphSocketHandler.handle(*tweet)
             TweetsSocketHandler.handle(*tweet)
 
 def main():
