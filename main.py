@@ -7,6 +7,7 @@ import os.path
 import json
 import stream
 import threading
+import time
 
 class Application(tornado.web.Application):
     def __init__(self):
@@ -154,6 +155,8 @@ class SmallGraphSocketHandler(tornado.websocket.WebSocketHandler):
 
 class TweetsSocketHandler(tornado.websocket.WebSocketHandler):
     waiters = {}
+    last_msg = {}
+    THRESHOLD = 3
 
     def allow_draft76(self):
         # for iOS 5.0 Safari
@@ -176,6 +179,13 @@ class TweetsSocketHandler(tornado.websocket.WebSocketHandler):
         # Ignore tweets with neutral (0) sentiment
         if sentiment == 0:
             return
+
+        # Throttle tweets.
+        last_msg = TweetsSocketHandler.last_msg.get(hashtag)
+        now = long(time.time())
+        if last_msg and (now - last_msg) < cls.THRESHOLD:
+            return
+        TweetsSocketHandler.last_msg[hashtag] = now 
 
         for waiter in cls.waiters.get(hashtag, []):
             waiter.write_message(json.dumps((
