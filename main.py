@@ -176,14 +176,9 @@ class TweetsSocketHandler(tornado.websocket.WebSocketHandler):
         if sentiment == 0:
             return
 
-        if sentiment > 0:
-            sentiment_bool = True
-        else:
-            sentiment_bool = False
-
         for waiter in cls.waiters.get(hashtag, []):
             waiter.write_message(json.dumps((
-                sentiment_bool, timestamp, msg, author_url)))
+                sentiment, timestamp, msg, author_url)))
 
 
 class TweetDaemon(object):
