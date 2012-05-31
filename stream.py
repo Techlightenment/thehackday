@@ -1,6 +1,7 @@
 import re
 import tweetstream
 import time
+from credentials import USER, PASS
 
 filename = 'wordlist.txt'
 wordmap = dict(map(lambda (w,s): (w, int(s)), [ws.strip().split('\t') for ws in open(filename)]))
@@ -22,7 +23,7 @@ def category(text, words):
             return word 
 
 def tweets(words):
-    t = tweetstream.FilterStream('tl_hackday', 'h@ckd@yh@ckd@y', track=words)
+    t = tweetstream.FilterStream(USER, PASS, track=words)
     for tweet in t:
         text = tweet['text']
         sent = sentiment(text)
