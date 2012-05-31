@@ -41,5 +41,7 @@ def tweets(words):
             continue
 
 if __name__ == '__main__':
-    for v in tweets(['olympics']):
+    for v in tweets([
+                     'manchester united', 
+                     ]):
         print v
