@@ -1,7 +1,13 @@
-.flot-container{
+.big-graph .flot-container{
   width:800px;
   height: 200px;
 }
+
+.flot-small .flot-containter{
+	width: 320px;
+	height: 100px;
+	}
+
 
 /* **************** Positionning ***************** */
 

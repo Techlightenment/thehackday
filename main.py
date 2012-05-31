@@ -37,6 +37,7 @@ class Application(tornado.web.Application):
             cookie_secret="43oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
             static_path=os.path.join(os.path.dirname(__file__), "static"),
+            debug=True
         )
         tornado.web.Application.__init__(self, handlers, **settings)
 
