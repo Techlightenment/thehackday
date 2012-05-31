@@ -67,7 +67,7 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
                 pass
 
     @classmethod
-    def handle(cls, timestamp, msg, sentiment, hashtag):
+    def handle(cls, timestamp, msg, sentiment, hashtag, author_url):
 
         # Ignore tweets with neutral (0) sentiment
         if sentiment == 0:
@@ -123,7 +123,7 @@ class SmallGraphSocketHandler(tornado.websocket.WebSocketHandler):
                 pass
 
     @classmethod
-    def handle(cls, timestamp, msg, sentiment, hashtag):
+    def handle(cls, timestamp, msg, sentiment, hashtag, author_url):
 
         # Ignore tweets with neutral (0) sentiment
         if sentiment == 0:
@@ -164,9 +164,20 @@ class TweetsSocketHandler(tornado.websocket.WebSocketHandler):
                 pass
 
     @classmethod
-    def handle(cls, timestamp, msg, sentiment, hashtag):
+    def handle(cls, timestamp, msg, sentiment, hashtag, author_url):
+        
+        # Ignore tweets with neutral (0) sentiment
+        if sentiment == 0:
+            return
+
+        if sentiment > 0:
+            sentiment_bool = True
+        else:
+            sentiment_bool = False
+
         for waiter in cls.waiters.get(hashtag, []):
-            waiter.write_message(json.dumps((timestamp, msg)))
+            waiter.write_message(json.dumps((
+                sentiment_bool, timestamp, msg, author_url)))
 
 
 class TweetDaemon(object):
