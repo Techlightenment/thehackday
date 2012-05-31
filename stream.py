@@ -30,8 +30,6 @@ def tweets(words):
         cat = category(text, words)
         if not cat:
             continue
-        print text
-        print "sentiment:%s" % sent
         ts = int(time.time())
         yield ts, text, sent, cat
 
