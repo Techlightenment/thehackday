@@ -9,6 +9,22 @@ import stream
 import threading
 import time
 
+WORDS = ['jubilee', 
+         'olympics', 
+         'euro2012', 
+         'leveson', 
+         'manchester united',
+         'chelsea',
+         'manchester city',
+         'liverpool',
+         'arsenal',
+         'cake',
+         'chocolate',
+         'pizza',
+         'beer',
+         ]
+
+
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
@@ -27,27 +43,83 @@ class Application(tornado.web.Application):
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("index.html")
+        self.render("index.html", {
+            'word_1': WORDS[0],
+            'word_2': WORDS[1],
+            'word_3': WORDS[2],
+            'word_4': WORDS[3],
+            })
 
 
 class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
-    waiters = set()
+    waiters = {}
+    scores = {}
+    groups = {}
+
 
     def allow_draft76(self):
         # for iOS 5.0 Safari
         return True
 
     def open(self):
-        BigGraphSocketHandler.waiters.add(self)
+
+        hashtags = self.get_argument('hashtag').split(',')
+
+        for h in hashtags:
+            try:
+                del BigGraphSocketHandler.scores[h]
+            except KeyError: pass
+            try:
+                del BigGraphSocketHandler.groups[h]
+            except KeyError: pass
+
+        # Given any hashtag returns its group
+        for h in hashtags:
+            BigGraphSocketHandler.groups[h] = hashtags
+
+        for h in hashtags:
+            BigGraphSocketHandler.waiters.setdefault(h, set()).add(self)
 
     def on_close(self):
-        BigGraphSocketHandler.waiters.remove(self)
+        for vs in BigGraphSocketHandler.waiters.values():
+            try:
+                vs.remove(self)
+            except KeyError:
+                pass
 
     @classmethod
-    def handle(cls, timestamp, msg, sentiment, hashtag):
-        for waiter in cls.waiters:
-            pass
-            #waiter.write_message(json.dumps(data))
+    def handle(cls, timestamp, msg, sentiment, hashtag, author_url):
+
+        if hashtag not in BigGraphSocketHandler.groups:
+            return
+
+        # Ignore tweets with neutral (0) sentiment
+        if sentiment == 0:
+            return
+
+        # Get scores for all hashtags in the group.
+        xs = BigGraphSocketHandler.scores.get(hashtag, [])
+        xs.append(sentiment)
+        xs = xs[-40:]
+        BigGraphSocketHandler.scores[hashtag] = xs
+
+        # Get average sentiment
+        def get_average(hashtag):
+            xs = BigGraphSocketHandler.scores.get(hashtag, [])
+            delimiter = sum(map(abs, xs))
+            if delimiter:
+                av = sum(xs) / float(delimiter)
+            else:
+                av = 0
+            return av
+
+        # Calculate avergage
+        scores = []
+        for h in BigGraphSocketHandler.groups[hashtag]:
+            scores.append(get_average(h))      
+
+        for waiter in cls.waiters.get(hashtag, []):
+            waiter.write_message(json.dumps(scores))
 
 
 class SmallGraphSocketHandler(tornado.websocket.WebSocketHandler):
@@ -60,7 +132,16 @@ class SmallGraphSocketHandler(tornado.websocket.WebSocketHandler):
         return True
 
     def open(self):
+
         hashtag = self.get_argument('hashtag')
+
+        try:
+            del SmallGraphSocketHandler.positive_scores[hashtag]
+        except KeyError: pass
+        try:
+            del SmallGraphSocketHandler.negative_scores[hashtag]
+        except KeyError: pass
+
         SmallGraphSocketHandler.waiters.setdefault(hashtag, set()).add(self)
 
     def on_close(self):
@@ -71,7 +152,11 @@ class SmallGraphSocketHandler(tornado.websocket.WebSocketHandler):
                 pass
 
     @classmethod
-    def handle(cls, timestamp, msg, sentiment, hashtag):
+    def handle(cls, timestamp, msg, sentiment, hashtag, author_url):
+
+        # Ignore tweets with neutral (0) sentiment
+        if sentiment == 0:
+            return
 
         # Maintain sentiment.
         if sentiment > 0:
@@ -91,6 +176,8 @@ class SmallGraphSocketHandler(tornado.websocket.WebSocketHandler):
 
 class TweetsSocketHandler(tornado.websocket.WebSocketHandler):
     waiters = {}
+    last_msg = {}
+    THRESHOLD = 1
 
     def allow_draft76(self):
         # for iOS 5.0 Safari
@@ -108,21 +195,32 @@ class TweetsSocketHandler(tornado.websocket.WebSocketHandler):
                 pass
 
     @classmethod
-    def handle(cls, timestamp, msg, sentiment, hashtag):
+    def handle(cls, timestamp, msg, sentiment, hashtag, author_url):
+        
+        # Ignore tweets with neutral (0) sentiment
+        if sentiment == 0:
+            return
+
+        # Throttle tweets.
+        last_msg = TweetsSocketHandler.last_msg.get(hashtag)
+        now = long(time.time())
+        if last_msg and (now - last_msg) < cls.THRESHOLD:
+            return
+        TweetsSocketHandler.last_msg[hashtag] = now 
+
         for waiter in cls.waiters.get(hashtag, []):
-            waiter.write_message(json.dumps((timestamp, msg)))
+            waiter.write_message(json.dumps((
+                sentiment, timestamp, msg, author_url)))
 
 
 class TweetDaemon(object):
     stop_tweet_daemon = False
-    WORDS = ['jubilee', 'olympics', 'euro2012', 'london2012']
-
     @classmethod
     def run(cls):
-        for tweet in stream.tweets(cls.WORDS):
+        for tweet in stream.tweets(WORDS):
             if cls.stop_tweet_daemon: break
             SmallGraphSocketHandler.handle(*tweet)
-            #BigGraphSocketHandler.handle(*tweet)
+            BigGraphSocketHandler.handle(*tweet)
             TweetsSocketHandler.handle(*tweet)
 
 def main():

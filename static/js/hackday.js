@@ -1,60 +1,166 @@
+window.chosenGraph = false
+
 $(document).ready(function(){
-  
-  var smallGraphs = [];
-  
   function Socket(parent, word, endpoint) {
     //biggraph
+    var self = this;
     this.parent = parent;
     this.endpoint = endpoint;
     this.root = "ws://" + location.host + "/" + endpoint + "?hashtag=" + word;
     
     this.socket = new WebSocket(this.root);
-    
     this.socket.onmessage = function(e){
       this.update(e.data);
-    }
+    }.bind(this)
   }
-  //5333
+
+  
   Socket.prototype.update = function(data){
-    var maxPoints = 400;
+    var maxPoints = 75,
+        t = new Date().getTime(),
+        data = JSON.parse(data),
+        flot = this.parent.flot;
     // Munge data her to current flot data
     // Set max number of points
-    var cdata = this.parent.flot.getData();
-    
+    var cdata = flot.getData();
+      
     _.each(cdata, function(d,i){
-      var newPoint = [data.time, data.data[i]];
+      var newPoint = [t, data[i]];
       
-      d.concat(newPoint)
-      
-      if(d.length > maxPoints){
-        d.slice(0, maxPoints - d.length);
+      d.data.push(newPoint);
+      if(d.data.length > maxPoints){
+        d.data = d.data.slice(d.data.length - maxPoints, d.data.length);
       }
-      
-      this.parent.flot.update();
-      this.parent.flot.draw();
     });
+    
+    flot.setData(cdata);
+    flot.setupGrid();
+    flot.draw();
+//    var start = cdata[0].data[0][0];
+//    
+//    var range = Math.round(((t - start) / 1000));
+//    
+//    this.parent.target.find('.timerange').html('In the last ' + range + ' seconds.');
   }
   
-  function Graph(word, el, endpoint){
+  function Graph(word, el, endpoint, neg){
+    var t = new Date().getTime();
     this.word = word;
     this.target = el;
+    
+    var opts = {
+        xaxis: {
+        show: false
+      },
+      yaxis: {
+        min: 0
+      }
+    }
+    
+    if(neg){
+      opts.yaxis = {
+          min: -1,
+          max: 1
+      }
+    }
+    
     this.flot = $.plot(
           this.target.children('.flot-container'),
-          [],
-          {}
+          [
+           {
+             color: '#00d618',
+             data: [t, 0]
+           }, 
+           {
+             color: '#f00',
+             data: [t, 0]
+           },  
+           {
+             color: '#0015ff',
+             data: [t, 0]
+           }, 
+           {
+             color: '#000',
+             data: [t, 0]
+           }
+          ],
+          opts
         );
-    
     this.socket = new Socket(this, word, endpoint);
     
   }
 
+  function TweetSocket(parent, word) {
+    
+    var self = this;
+    this.parent = parent;
+    
+    this.endpoint = 'tweets';
+    this.root = "ws://" + location.host + "/" + this.endpoint + "?hashtag=" + word;
+
+    this.socket = new WebSocket(this.root);
+    this.socket.onmessage = function(e){
+      this.update(e.data);
+      console.log(JSON.parse(e.data))
+    }.bind(this);
+ 
+  }
+  
+  TweetSocket.prototype.update = function(data){
+    data = JSON.parse(data);
+    
+    var pos = this.parent.el.find('.tweet-positive');
+    var neg= this.parent.el.find('.tweet-negative');
+    
+    var temp = '<div><img src="<%= pic %>"/><p><%= sent%></p><p><%= msg%></p></div>'
+    var data = {
+      pic: data[3],
+      sent: data[0],
+      msg: data[2]
+    }
+    var template = _.template(temp, data);
+    
+    if(data.sent > 0){
+      pos.append(template);
+    } else {
+      neg.append(template);
+    }
+  }
+  
+  TweetStream.prototype.changeSocket = function(word){
+    this.socket.socket.close();
+    this.el.find('.tweet-positive').html("");
+    this.el.find('.tweet-negative').html("");
+    this.socket = new TweetSocket(this, word);
+  }
+  
+  function TweetStream(el, word){
+    this.el = $('#' + el);
+    this.socket = new TweetSocket(this, word);
+  }
+  
+  window.tweetLog = new TweetStream('twitterStream', 'olympics');
+
   _.each($('.small-graph'), function(v, i){
     var el = $(v),
         word = el.data().word,
+        neg = el.data().neg,
         endpoint = el.data().endpoint;
     
-    var g = new Graph(word, el, endpoint);
-    
+    var g = new Graph(word, el, endpoint, neg);
   })
   
+  _.each($('.big-graph'), function(v, i){
+    var el = $(v),
+        word = el.data().word,
+        neg = el.data().neg,
+        endpoint = el.data().endpoint;
+    
+    var g = new Graph(word, el, endpoint, neg);
+  });
+  
+  $('.btn-graph').click(function(){
+    var word = $(this).data().word;
+    window.tweetLog.changeSocket(word)
+  });
 });
