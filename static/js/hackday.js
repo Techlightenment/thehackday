@@ -12,8 +12,7 @@ $(document).ready(function(){
     this.socket = new WebSocket(this.root);
     console.log(this.root)
     this.socket.onmessage = function(e){
-      console.log("updating " + word)
-
+      console.log("updating " + word);
       this.update(e.data);
     }.bind(this)
   }
@@ -75,7 +74,7 @@ $(document).ready(function(){
     var g = new Graph(word, el, endpoint);
   })
   
-  .each($('.big-graph'), function(v, i){
+  _.each($('.big-graph'), function(v, i){
     var el = $(v),
         word = el.data().word,
         endpoint = el.data().endpoint;
