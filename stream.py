@@ -30,9 +30,10 @@ def tweets(words):
         cat = category(text, words)
         if not cat:
             continue
+        image = tweet.get('user',{}).get('profile_image_url')
         ts = int(time.time())
-        yield ts, text, sent, cat
+        yield ts, text, sent, cat, image
 
 if __name__ == '__main__':
-    for v in tweets(['olympics', 'jubilee']):
+    for v in tweets(['olympics']):
         print v
