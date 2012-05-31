@@ -68,6 +68,9 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
     @classmethod
     def handle(cls, timestamp, msg, sentiment, hashtag, author_url):
 
+        if hashtag not in BigGraphSocketHandler.groups:
+            return
+
         # Ignore tweets with neutral (0) sentiment
         if sentiment == 0:
             return
