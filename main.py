@@ -44,7 +44,7 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
         BigGraphSocketHandler.waiters.remove(self)
 
     @classmethod
-    def handle(cls, timestamp, text, sentiment, hashtag):
+    def handle(cls, timestamp, msg, sentiment, hashtag):
         for waiter in cls.waiters:
             pass
             #waiter.write_message(json.dumps(data))
@@ -71,7 +71,7 @@ class SmallGraphSocketHandler(tornado.websocket.WebSocketHandler):
                 pass
 
     @classmethod
-    def handle(cls, timestamp, text, sentiment, hashtag):
+    def handle(cls, timestamp, msg, sentiment, hashtag):
 
         # Maintain sentiment.
         if sentiment > 0:
@@ -82,32 +82,35 @@ class SmallGraphSocketHandler(tornado.websocket.WebSocketHandler):
                 cls.negative_scores.get(hashtag, 0) + abs(sentiment)
         
         # Get current sentiment score.
-        scores = (cls.positive_scores[hashtag],
-                  cls.negative_scores[hashtag])
+        scores = (cls.positive_scores.get(hashtag, 0),
+                  cls.negative_scores.get(hashtag, 0))
 
         for waiter in cls.waiters.get(hashtag, []):
             waiter.write_message(json.dumps(scores))
 
 
 class TweetsSocketHandler(tornado.websocket.WebSocketHandler):
-    waiters = set()
+    waiters = {}
 
     def allow_draft76(self):
         # for iOS 5.0 Safari
         return True
 
     def open(self):
-        print self.get_argument('tweet')
-        TweetsSocketHandler.waiters.add(self)
+        hashtag = self.get_argument('hashtag')
+        TweetsSocketHandler.waiters.setdefault(hashtag, set()).add(self)
 
     def on_close(self):
-        TweetsSocketHandler.waiters.remove(self)
+        for vs in TweetsSocketHandler.waiters.values():
+            try:
+                vs.remove(self)
+            except KeyError:
+                pass
 
     @classmethod
-    def handle(cls, timestamp, text, sentiment, hashtag):
-        for waiter in cls.waiters:
-            pass
-            #waiter.write_message(json.dumps(data))
+    def handle(cls, timestamp, msg, sentiment, hashtag):
+        for waiter in cls.waiters.get(hashtag, []):
+            waiter.write_message(json.dumps((timestamp, msg)))
 
 
 class TweetDaemon(object):
@@ -120,7 +123,7 @@ class TweetDaemon(object):
             if cls.stop_tweet_daemon: break
             SmallGraphSocketHandler.handle(*tweet)
             #BigGraphSocketHandler.handle(*tweet)
-            #TweetsSocketHandler.handle(*tweet)
+            TweetsSocketHandler.handle(*tweet)
 
 def main():
 
