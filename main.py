@@ -15,13 +15,8 @@ WORDS = ['jubilee',
          'leveson', 
          'manchester united',
          'chelsea',
-         'manchester city',
-         'liverpool',
          'arsenal',
-         'cake',
-         'chocolate',
-         'pizza',
-         'beer',
+         'liverpool',
          ]
 
 
