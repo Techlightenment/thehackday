@@ -9,7 +9,7 @@ var updater = {
     socket: null,
 
     start: function() {
-        var url = "ws://" + location.host + "/biggraph";
+        var url = "ws://" + location.host + "/smallgraph?hashtag=jubilee";
         if ("WebSocket" in window) {
         updater.socket = new WebSocket(url);
         } else {
