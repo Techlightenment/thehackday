@@ -23,16 +23,22 @@ def category(text, words):
             return word 
 
 def tweets(words):
-    t = tweetstream.FilterStream(USER, PASS, track=words)
-    for tweet in t:
-        text = tweet['text']
-        sent = sentiment(text)
-        cat = category(text, words)
-        if not cat:
+    while True:
+        try:
+            t = tweetstream.FilterStream(USER, PASS, track=words)
+            for tweet in t:
+                text = tweet['text']
+                sent = sentiment(text)
+                cat = category(text, words)
+                if not cat:
+                    continue
+                image = tweet.get('user',{}).get('profile_image_url')
+                ts = int(time.time())
+                yield ts, text, sent, cat, image
+        except tweetstream.ConnectionError:
+            print "Connection Lost. Retrying..."
+            time.sleep(2)
             continue
-        image = tweet.get('user',{}).get('profile_image_url')
-        ts = int(time.time())
-        yield ts, text, sent, cat, image
 
 if __name__ == '__main__':
     for v in tweets(['olympics']):
