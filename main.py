@@ -9,7 +9,20 @@ import stream
 import threading
 import time
 
-WORDS = ['jubilee', 'olympics', 'philpott', 'chocolate']
+WORDS = ['jubilee', 
+         'olympics', 
+         'euro2012', 
+         'leveson', 
+         'manchester united',
+         'chelsea',
+         'manchester city',
+         'liverpool',
+         'arsenal',
+         'cake',
+         'chocolate',
+         'pizza',
+         'beer',
+         ]
 
 
 class Application(tornado.web.Application):

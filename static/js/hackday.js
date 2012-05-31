@@ -1,5 +1,6 @@
+window.chosenGraph = false
+
 $(document).ready(function(){
-  
   function Socket(parent, word, endpoint) {
     //biggraph
     var self = this;
@@ -35,15 +36,12 @@ $(document).ready(function(){
     flot.setData(cdata);
     flot.setupGrid();
     flot.draw();
-    var start = cdata[0].data[0][0];
-    
-    var range = Math.round(((t - start) / 1000));
-    
-    this.parent.target.find('.timerange').html('In the last ' + range + ' seconds.');
+//    var start = cdata[0].data[0][0];
+//    
+//    var range = Math.round(((t - start) / 1000));
+//    
+//    this.parent.target.find('.timerange').html('In the last ' + range + ' seconds.');
   }
-  
-  
-  
   
   function Graph(word, el, endpoint, neg){
     var t = new Date().getTime();
@@ -68,7 +66,24 @@ $(document).ready(function(){
     
     this.flot = $.plot(
           this.target.children('.flot-container'),
-          [[[t, 0]], [[t, 0]], [[t, 0]], [[t, 0]]],
+          [
+           {
+             color: '#00d618',
+             data: [t, 0]
+           }, 
+           {
+             color: '#f00',
+             data: [t, 0]
+           },  
+           {
+             color: '#0015ff',
+             data: [t, 0]
+           }, 
+           {
+             color: '#000',
+             data: [t, 0]
+           }
+          ],
           opts
         );
     this.socket = new Socket(this, word, endpoint);
@@ -79,33 +94,20 @@ $(document).ready(function(){
     
     var self = this;
     this.parent = parent;
-    this.socket = false;
     
     this.endpoint = 'tweets';
     this.root = "ws://" + location.host + "/" + this.endpoint + "?hashtag=" + word;
 
-    if(!this.socket){
-      this.socket = new WebSocket(this.root);
-      this.socket.onmessage = function(e){
-        this.update(e.data);
-        console.log(JSON.parse(e.data))
-      }.bind(this);
-    } else {
-      this.socket.close();
-      this.parent.el.find('tweet-positive').html("");
-      this.parent.el.find('tweet-positive').html("");
-      
-      this.socket = new WebSocket(this.root);
-      this.socket.onmessage = function(e){
-        
-        this.update(e.data);
-      }.bind(this);
-    }
+    this.socket = new WebSocket(this.root);
+    this.socket.onmessage = function(e){
+      this.update(e.data);
+      console.log(JSON.parse(e.data))
+    }.bind(this);
+ 
   }
   
   TweetSocket.prototype.update = function(data){
     data = JSON.parse(data);
-    //[sentiment, ts, message, pic]
     
     var pos = this.parent.el.find('.tweet-positive');
     var neg= this.parent.el.find('.tweet-negative');
@@ -125,12 +127,19 @@ $(document).ready(function(){
     }
   }
   
+  TweetStream.prototype.changeSocket = function(word){
+    this.socket.socket.close();
+    this.el.find('.tweet-positive').html("");
+    this.el.find('.tweet-negative').html("");
+    this.socket = new TweetSocket(this, word);
+  }
+  
   function TweetStream(el, word){
     this.el = $('#' + el);
     this.socket = new TweetSocket(this, word);
   }
   
-  new TweetStream('twitterStream', 'olympics');
+  window.tweetLog = new TweetStream('twitterStream', 'olympics');
 
   _.each($('.small-graph'), function(v, i){
     var el = $(v),
@@ -149,7 +158,9 @@ $(document).ready(function(){
     
     var g = new Graph(word, el, endpoint, neg);
   });
-
   
-  
+  $('.btn-graph').click(function(){
+    var word = $(this).data().word;
+    window.tweetLog.changeSocket(word)
+  });
 });
