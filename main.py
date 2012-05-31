@@ -184,13 +184,11 @@ class TweetsSocketHandler(tornado.websocket.WebSocketHandler):
             return
 
         # Throttle tweets.
-        """
         last_msg = TweetsSocketHandler.last_msg.get(hashtag)
         now = long(time.time())
         if last_msg and (now - last_msg) < cls.THRESHOLD:
             return
         TweetsSocketHandler.last_msg[hashtag] = now 
-        """
 
         for waiter in cls.waiters.get(hashtag, []):
             waiter.write_message(json.dumps((
