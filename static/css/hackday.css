@@ -1,4 +1,8 @@
 .flot-container{
-  width:800px;
-  height: 200px;
+  width:300px;
+  height: 150px;
+}
+
+.small-graph {
+float:left;
 }

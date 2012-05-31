@@ -53,7 +53,7 @@ $(document).ready(function(){
     this.target = el;
     this.flot = $.plot(
           this.target.children('.flot-container'),
-          [[[t, 0]], [[t, 0]]],
+          [[[t, 0]], [[t, 0]], [[t, 0]], [[t, 0]]],
           {
             xaxis: {
               show: false
@@ -68,6 +68,14 @@ $(document).ready(function(){
   }
 
   _.each($('.small-graph'), function(v, i){
+    var el = $(v),
+        word = el.data().word,
+        endpoint = el.data().endpoint;
+    
+    var g = new Graph(word, el, endpoint);
+  })
+  
+  .each($('.big-graph'), function(v, i){
     var el = $(v),
         word = el.data().word,
         endpoint = el.data().endpoint;
