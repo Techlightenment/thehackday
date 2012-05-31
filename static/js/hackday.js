@@ -54,38 +54,88 @@ $(document).ready(function(){
       },
       yaxis: {
         min: 0
+      },
+      legend: {
+        position: 'sw'
       }
     }
+
+    var data = [
+                {
+                  color: '#00d618',
+                  data: [t, 0]
+                }, 
+                {
+                  color: '#f00',
+                  data: [t, 0]
+                },  
+                {
+                  color: '#0015ff',
+                  data: [t, 0]
+                }, 
+                {
+                  color: '#000',
+                  data: [t, 0]
+                }
+               ]
+    
+    
     
     if(neg){
+      
+      for(var i = 0; i < 4; i++){
+        data[i]['label'] = $($('.small-graph')[i]).data().word
+      }
       opts.yaxis = {
           min: -1,
           max: 1
+        }
+    }
+    this.flot = $.plot(
+        this.target.children('.flot-container'),
+        data,
+        opts
+      );
+    /*
+     * var opts = {
+        xaxis: {
+        show: false
+      },
+      yaxis: {
+        min: 0
       }
     }
     
-    this.flot = $.plot(
-          this.target.children('.flot-container'),
-          [
-           {
-             color: '#00d618',
-             data: [t, 0]
-           }, 
-           {
-             color: '#f00',
-             data: [t, 0]
-           },  
-           {
-             color: '#0015ff',
-             data: [t, 0]
-           }, 
-           {
-             color: '#000',
-             data: [t, 0]
-           }
-          ],
-          opts
-        );
+    
+    var data = [
+                {
+                  color: '#00d618',
+                  data: [t, 0],
+                }, 
+                {
+                  color: '#f00',
+                  data: [t, 0],
+                },
+                {
+                  color: '#0015ff',
+                  data: [t, 0],
+                }, 
+                {
+                  color: '#000',
+                  data: [t, 0],
+                }]
+               
+   if(neg){
+     
+     for(var i = 0; i < 4; i++){
+       data[i]['label'] = $($('.small-graph')[i]).data().word
+     }
+     opts.yaxis = {
+         min: -1,
+         max: 1
+       }
+   }
+     */
     this.socket = new Socket(this, word, endpoint);
     
   }
@@ -166,8 +216,10 @@ $(document).ready(function(){
     var g = new Graph(word, el, endpoint, neg);
   });
   
-  $('.btn-graph').click(function(){
-    var word = $(this).data().word;
+  $('.small_graph_mod').click(function(){
+    var word = $($(this).find('.btn-graph')[0]).data().word;
+    $('.small_graph_mod').removeClass('bg_gy');
+    $(this).toggleClass('bg_gy');
     window.tweetLog.changeSocket(word)
   });
 });
