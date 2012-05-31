@@ -52,9 +52,8 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
             except KeyError: pass
 
         # Given any hashtag returns its group
-        groups = BigGraphSocketHandler.groups
         for h in hashtags:
-            groups[h] = hashtags
+            BigGraphSocketHandler.groups[h] = hashtags
 
         for h in hashtags:
             BigGraphSocketHandler.waiters.setdefault(h, set()).add(self)
@@ -81,8 +80,12 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
         # Get average sentiment
         def get_average(hashtag):
             xs = BigGraphSocketHandler.scores.get(hashtag, [])
-            av = sum(xs) / sum(map(abs, xs))
-            return (av * 2) - 1
+            delimiter = sum(map(abs, xs))
+            if delimiter:
+                av = sum(xs) / delimiter
+            else:
+                av = 0
+            return av
 
         # Calculate avergage
         scores = []
