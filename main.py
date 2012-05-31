@@ -41,7 +41,7 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
 
-        hashtags = self.get_argument('hashtags').split(',')
+        hashtags = self.get_argument('hashtag').split(',')
 
         for h in hashtags:
             try:
