@@ -13,7 +13,9 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"/", MainHandler),
-            (r"/biggraph", BigGraphSocketHandler),
+            (r"/biggraph",      BigGraphSocketHandler),
+            (r"/smallgraph",    SmallGraphSocketHandler),
+            (r"/tweets",        TweetsSocketHandler),
         ]
         settings = dict(
             cookie_secret="43oETzKXQAGaYdkL5gEmGeJJFuYh7EQnp2XdTP1o/Vo=",
