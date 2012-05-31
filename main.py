@@ -85,7 +85,7 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
             xs = BigGraphSocketHandler.scores.get(hashtag, [])
             delimiter = sum(map(abs, xs))
             if delimiter:
-                av = sum(xs) / delimiter
+                av = sum(xs) / float(delimiter)
             else:
                 av = 0
             return av
