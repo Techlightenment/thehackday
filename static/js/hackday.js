@@ -10,16 +10,13 @@ $(document).ready(function(){
     this.root = "ws://" + location.host + "/" + endpoint + "?hashtag=" + word;
     
     this.socket = new WebSocket(this.root);
-    console.log(this.root)
     this.socket.onmessage = function(e){
-      console.log("updating " + word);
-      console.log(JSON.parse(e.data));
       this.update(e.data);
     }.bind(this)
   }
   //5333
   Socket.prototype.update = function(data){
-    var maxPoints = 400,
+    var maxPoints = 300,
         t = new Date().getTime(),
         data = JSON.parse(data),
         flot = this.parent.flot;
@@ -31,9 +28,12 @@ $(document).ready(function(){
       var newPoint = [t, data[i]];
       
       d.data.push(newPoint);
-      
+      console.log(d.data.length)
+      console.log(maxPoints);
       if(d.data.length > maxPoints){
-        d.data.slice(0, maxPoints - d.data.length);
+        console.log(d.data.length);
+        d.data = d.data.slice(d.data.length - maxPoints, d.data.length);
+        console.log(d.data.length);
       }
     });
     
@@ -47,21 +47,28 @@ $(document).ready(function(){
     this.parent.target.find('.timerange').html('In the last ' + range + ' seconds.');
   }
   
-  function Graph(word, el, endpoint){
+  function Graph(word, el, endpoint, neg){
     var t = new Date().getTime();
     this.word = word;
     this.target = el;
+    
+    var opts = {
+        xaxis: {
+        show: false
+      },
+      yaxis: {
+        min: 0
+      }
+    }
+    
+    if(neg){
+      delete opts.yaxis.min
+    }
+    
     this.flot = $.plot(
           this.target.children('.flot-container'),
           [[[t, 0]], [[t, 0]], [[t, 0]], [[t, 0]]],
-          {
-            xaxis: {
-              show: false
-            },
-            yaxis: {
-              min: 0
-            }
-          }
+          opts
         );
     this.socket = new Socket(this, word, endpoint);
     
@@ -70,17 +77,19 @@ $(document).ready(function(){
   _.each($('.small-graph'), function(v, i){
     var el = $(v),
         word = el.data().word,
+        neg = el.data().neg,
         endpoint = el.data().endpoint;
     
-    var g = new Graph(word, el, endpoint);
+    var g = new Graph(word, el, endpoint, neg);
   })
   
   _.each($('.big-graph'), function(v, i){
     var el = $(v),
         word = el.data().word,
+        neg = el.data().neg,
         endpoint = el.data().endpoint;
     
-    var g = new Graph(word, el, endpoint);
+    var g = new Graph(word, el, endpoint, neg);
   })
   
 });
