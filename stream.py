@@ -15,7 +15,7 @@ def sentiment(text):
     return sentiment
 
 def run(words):
-    t = tweetstream.FilterStream('paolo_lawson', 'd0ublet0p', track=words)
+    t = tweetstream.FilterStream('tl_hackday', 'h@ckd@yh@ckd@y', track=words)
     for tweet in t:
         text = tweet['text']
         print text
