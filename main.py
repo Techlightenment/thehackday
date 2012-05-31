@@ -9,6 +9,9 @@ import stream
 import threading
 import time
 
+WORDS = ['jubilee', 'olympics', 'philpott', 'chocolate']
+
+
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
@@ -194,11 +197,9 @@ class TweetsSocketHandler(tornado.websocket.WebSocketHandler):
 
 class TweetDaemon(object):
     stop_tweet_daemon = False
-    WORDS = ['jubilee', 'olympics', 'philpott', 'chocolate']
-
     @classmethod
     def run(cls):
-        for tweet in stream.tweets(cls.WORDS):
+        for tweet in stream.tweets(WORDS):
             if cls.stop_tweet_daemon: break
             SmallGraphSocketHandler.handle(*tweet)
             BigGraphSocketHandler.handle(*tweet)
