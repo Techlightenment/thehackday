@@ -43,6 +43,14 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
 
         hashtags = self.get_argument('hashtags').split(',')
 
+        for h in hashtags:
+            try:
+                del BigGraphSocketHandler.scores[h]
+            except KeyError: pass
+            try:
+                del BigGraphSocketHandler.groups[h]
+            except KeyError: pass
+
         # Given any hashtag returns its group
         groups = BigGraphSocketHandler.groups
         for h in hashtags:
@@ -95,7 +103,16 @@ class SmallGraphSocketHandler(tornado.websocket.WebSocketHandler):
         return True
 
     def open(self):
+
         hashtag = self.get_argument('hashtag')
+
+        try:
+            del SmallGraphSocketHandler.positive_scores[hashtag]
+        except KeyError: pass
+        try:
+            del SmallGraphSocketHandler.negative_scores[hashtag]
+        except KeyError: pass
+
         SmallGraphSocketHandler.waiters.setdefault(hashtag, set()).add(self)
 
     def on_close(self):
