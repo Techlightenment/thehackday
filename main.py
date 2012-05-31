@@ -57,6 +57,7 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
             groups[h] = hashtags
 
         for h in hashtags:
+            print h
             BigGraphSocketHandler.waiters.setdefault(h, set()).add(self)
 
     def on_close(self):
