@@ -36,15 +36,12 @@ $(document).ready(function(){
     flot.setData(cdata);
     flot.setupGrid();
     flot.draw();
-    var start = cdata[0].data[0][0];
-    
-    var range = Math.round(((t - start) / 1000));
-    
-    this.parent.target.find('.timerange').html('In the last ' + range + ' seconds.');
+//    var start = cdata[0].data[0][0];
+//    
+//    var range = Math.round(((t - start) / 1000));
+//    
+//    this.parent.target.find('.timerange').html('In the last ' + range + ' seconds.');
   }
-  
-  
-  
   
   function Graph(word, el, endpoint, neg){
     var t = new Date().getTime();
@@ -69,7 +66,24 @@ $(document).ready(function(){
     
     this.flot = $.plot(
           this.target.children('.flot-container'),
-          [[[t, 0]], [[t, 0]], [[t, 0]], [[t, 0]]],
+          [
+           {
+             color: '#00d618',
+             data: [t, 0]
+           }, 
+           {
+             color: '#f00',
+             data: [t, 0]
+           },  
+           {
+             color: '#0015ff',
+             data: [t, 0]
+           }, 
+           {
+             color: '#000',
+             data: [t, 0]
+           }
+          ],
           opts
         );
     this.socket = new Socket(this, word, endpoint);
