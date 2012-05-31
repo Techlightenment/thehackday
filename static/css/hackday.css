@@ -104,7 +104,12 @@
 }
 
 .feed {
-	height: 100px;
 	overflow: auto;
-		border: solid 1px #ccc;
+	border: solid 1px #ccc;
+  width:300px;
+  height: 150px;
+}
+
+.small-graph {
+float:left;
 }
