@@ -139,7 +139,7 @@ $(document).ready(function(){
     this.socket = new TweetSocket(this, word);
   }
   
-  window.tweetLog = new TweetStream('twitterStream', 'olympics');
+  window.tweetLog = new TweetStream('twitterStream', 'manchester united');
 
   _.each($('.small-graph'), function(v, i){
     var el = $(v),
