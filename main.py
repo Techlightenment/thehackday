@@ -43,11 +43,13 @@ class Application(tornado.web.Application):
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("index.html", {
-            'word_1': WORDS[0],
-            'word_2': WORDS[1],
-            'word_3': WORDS[2],
-            'word_4': WORDS[3],
+        group = int(self.get_argument('group')) 
+        g = (group - 1) * 4
+        self.render("index.html", **{
+            'word_1': WORDS[g],
+            'word_2': WORDS[g+1],
+            'word_3': WORDS[g+2],
+            'word_4': WORDS[g+3],
             })
 
 
