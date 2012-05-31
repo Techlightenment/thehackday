@@ -5,10 +5,10 @@ $(document).ready(function(){
   function Socket(parent, word, endpoint) {
     //biggraph
     this.parent = parent;
-    this.target = $('#' + target);
     this.endpoint = endpoint;
-    this.root = 'endpoint';
-    this.socket = new WebSocket(this.root + '/' + this.endpoint);
+    this.root = "ws://" + location.host + "/" + endpoint + "?hashtag=" + word;
+    
+    this.socket = new WebSocket(this.root);
     
     this.socket.onmessage = function(e){
       this.update(e.data);
@@ -35,11 +35,11 @@ $(document).ready(function(){
     });
   }
   
-  function Graph(word, target, endpoint){
+  function Graph(word, el, endpoint){
     this.word = word;
-    this.target = $('#' + target);
+    this.target = el;
     this.flot = $.plot(
-          this.target.find('.flot-container'),
+          this.target.children('.flot-container'),
           [],
           {}
         );
@@ -49,11 +49,11 @@ $(document).ready(function(){
   }
 
   _.each($('.small-graph'), function(v, i){
-    var el = v,
-        word = el.data.word,
-        endpoint = el.data.endpoint;
+    var el = $(v),
+        word = el.data().word,
+        endpoint = el.data().endpoint;
     
-    //var g = new Graph(word, el, endpoint);
+    var g = new Graph(word, el, endpoint);
     
   })
   

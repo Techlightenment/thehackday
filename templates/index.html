@@ -6,7 +6,8 @@
 		  <script src="{{ static_url('js/underscore-1.2.2.min.js') }}"></script>
       <script src="{{ static_url('js/jquery.flot.min.js') }}"></script>
 		  <script src="{{ static_url('js/hackday.js') }}"></script>
-		  <link rel="stylesheet" type="text/css" href=css/bootstrap.css">
+		  <link rel="stylesheet" type="text/css" href="{{ static_url('css/hackday.css') }}">
+		  
 		</head>
 		<body>
 		  <div class="container">
@@ -15,20 +16,22 @@
 				  
 				  </div>
 				  <div class="side-graphs">
-				     <div class="small-graph" data-word="" data-endpoint="smallgraph">
-				      <div id="flot1" class="flot-container"></div>
+				     <div class="small-graph" data-word="olympics" data-endpoint="smallgraph">
+				      <div id="flot1" class="flot-container" style="width: 600px; height: 300px;" ></div>
 				      <ul>
 				        <li class="count-positive"></li>
 				        <li class="count-positive></li>
 				      </ul>
 				     </div>
-				     <div class="small-graph" data-word="" data-endpoint="smallgraph">
-              <div id="flot2" class="flot-container" ></div>
+				      <!--  
+				     <div class="small-graph" data-word="jubilee" data-endpoint="smallgraph">
+              <div id="flot2" class="flot-container" style="height:200px; width:400px" ></div>
               <ul>
                 <li class="count-positive"></li>
                 <li class="count-positive></li>
               </ul>
              </div>
+            
              <div class="small-graph" data-word="" data-endpoint="smallgraph">
               <div id="flot3" class="flot-container"></div>
               <ul>
@@ -43,6 +46,7 @@
                 <li class="count-positive></li>
               </ul>
              </div>
+             -->
 				  </div>
 			  </div>
 			  <div class="sidebar">

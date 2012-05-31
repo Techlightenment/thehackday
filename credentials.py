@@ -1,2 +1,2 @@
-USER = 'luke@techlightenment.com'
-PASSWORD = 'techlightenmenttwitter'
+USER = 'LukeAshworth3'
+PASS = 'techlightenmenttwitter'
