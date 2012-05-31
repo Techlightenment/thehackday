@@ -13,6 +13,7 @@ $(document).ready(function(){
     console.log(this.root)
     this.socket.onmessage = function(e){
       console.log("updating " + word);
+      console.log(JSON.parse(e.data));
       this.update(e.data);
     }.bind(this)
   }
