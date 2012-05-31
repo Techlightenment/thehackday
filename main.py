@@ -5,6 +5,9 @@ import tornado.web
 import tornado.websocket
 import os.path
 import json
+import stream
+import threading
+import time
 
 class Application(tornado.web.Application):
     def __init__(self):
@@ -50,11 +53,27 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
         for waiter in cls.waiters:
             waiter.write_message(json.dumps(data))
 
+class TweetDaemon(object):
+    stop_tweet_daemon = False
+
+    @classmethod
+    def run(cls):
+        for tweet in stream.tweets(['jubilee', 'olympics', 'euro2012', 'london2012']):
+            if cls.stop_tweet_daemon: break
+            BigGraphSocketHandler.dispatch({'tweet': tweet})
 
 def main():
+
+    tweet_daemon = threading.Thread(target=TweetDaemon.run)
+    tweet_daemon.start()
+
     app = Application()
     app.listen(8888)
-    tornado.ioloop.IOLoop.instance().start()
+    try:
+        tornado.ioloop.IOLoop.instance().start()
+    except KeyboardInterrupt:
+        TweetDaemon.stop_tweet_daemon = True
+        tweet_daemon.join()
 
 
 if __name__ == "__main__":
