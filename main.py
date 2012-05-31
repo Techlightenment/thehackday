@@ -79,6 +79,7 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
         xs = BigGraphSocketHandler.scores.get(hashtag, [])
         xs.append(sentiment)
         xs = xs[-10:]
+        BigGraphSocketHandler.scores[hashtag] = xs
 
         # Get average sentiment
         def get_average(hashtag):
