@@ -159,7 +159,7 @@ class SmallGraphSocketHandler(tornado.websocket.WebSocketHandler):
 class TweetsSocketHandler(tornado.websocket.WebSocketHandler):
     waiters = {}
     last_msg = {}
-    THRESHOLD = 3
+    THRESHOLD = 1
 
     def allow_draft76(self):
         # for iOS 5.0 Safari
