@@ -53,7 +53,7 @@ $(document).ready(function(){
         word = el.data.word,
         endpoint = el.data.endpoint;
     
-    var g = new Graph(word, el, endpoint);
+    //var g = new Graph(word, el, endpoint);
     
   })
   
