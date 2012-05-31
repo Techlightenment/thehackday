@@ -1,5 +1,6 @@
 import re
 import tweetstream
+import time
 
 filename = 'wordlist.txt'
 wordmap = dict(map(lambda (w,s): (w, int(s)), [ws.strip().split('\t') for ws in open(filename)]))
@@ -14,12 +15,25 @@ def sentiment(text):
         sentiment = 0
     return sentiment
 
-def run(words):
+def category(text, words):
+    text_lower = text.lower()
+    for word in words:
+        if word.lower() in text_lower:
+            return word 
+
+def tweets(words):
     t = tweetstream.FilterStream('tl_hackday', 'h@ckd@yh@ckd@y', track=words)
     for tweet in t:
         text = tweet['text']
+        sent = sentiment(text)
+        cat = category(text, words)
+        if not cat:
+            continue
         print text
-        print "sentiment: %s" % sentiment(text)
+        print "sentiment:%s" % sent
+        ts = int(time.time())
+        yield ts, text, sent, cat
 
 if __name__ == '__main__':
-    run(['olympics', 'jubilee', 'euro2012', 'london2012'])
+    for v in tweets(['olympics', 'jubilee']):
+        print v
