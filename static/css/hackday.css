@@ -100,22 +100,36 @@
 .big_graph {
   width: 698px;
   height: 300px;
-  border: solid 2px #ccc;
 }
 
 .flot-small {
   width: 324px;
   height: 100px;
-  border: solid 2px #ccc;
 }
 
 .feed {
   overflow: auto;
   border: solid 1px #ccc;
   width:300px;
-  height: 150px;
+  height: 250px;
 }
 
 .small-graph {
 float:left;
+}
+
+.twitter-ind img{
+  float:left;
+}
+.twitter-ind img{
+  float:left;
+}
+.twitter-ind img{
+  float:left;
+}
+
+.twitter-ind .badge{
+  float:right;
+  margin-top: 5px;
+  margin-right: 10px;
 }

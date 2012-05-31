@@ -111,19 +111,24 @@ $(document).ready(function(){
     
     var pos = this.parent.el.find('.tweet-positive');
     var neg= this.parent.el.find('.tweet-negative');
-    
-    var temp = '<div><img src="<%= pic %>"/><p><%= sent%></p><p><%= msg%></p></div>'
+    var xtra = 'badge-success';
+    var temp = '<div class="twitter-ind pam"><div class="mbm"><img src="<%= pic %>"/><span class="badge <%= badge%>"><%= sent%></span></div>' +
+               '<div style="clear:both"><p><%= msg%></p></div></div>'
     var data = {
       pic: data[3],
       sent: data[0],
       msg: data[2]
     }
-    var template = _.template(temp, data);
     
     if(data.sent > 0){
-      pos.append(template);
+      data['badge'] = 'badge-success'
+      var template = _.template(temp, data);
+      pos.prepend(template);
     } else {
-      neg.append(template);
+
+      data['badge'] = 'badge-important'
+      var template = _.template(temp, data);
+      neg.prepend(template);
     }
   }
   
@@ -139,7 +144,9 @@ $(document).ready(function(){
     this.socket = new TweetSocket(this, word);
   }
   
-  window.tweetLog = new TweetStream('twitterStream', 'olympics');
+  var initial = $($('.small-graph')[0]).data().word
+  
+  window.tweetLog = new TweetStream('twitterStream', initial);
 
   _.each($('.small-graph'), function(v, i){
     var el = $(v),
