@@ -78,7 +78,7 @@ class BigGraphSocketHandler(tornado.websocket.WebSocketHandler):
         # Get scores for all hashtags in the group.
         xs = BigGraphSocketHandler.scores.get(hashtag, [])
         xs.append(sentiment)
-        xs = xs[-10:]
+        xs = xs[-40:]
         BigGraphSocketHandler.scores[hashtag] = xs
 
         # Get average sentiment
